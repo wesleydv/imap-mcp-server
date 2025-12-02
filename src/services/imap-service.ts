@@ -186,10 +186,10 @@ export class ImapService {
     });
   }
 
-  async markAsRead(accountId: string, folderName: string, uid: number): Promise<void> {
+  async markAsRead(accountId: string, folderName: string, uid: number | number[]): Promise<void> {
     await this.selectFolder(accountId, folderName);
     const connection = this.getConnection(accountId);
-    
+
     return new Promise((resolve, reject) => {
       connection.addFlags(uid, '\\Seen', (err: Error) => {
         if (err) reject(err);
@@ -198,10 +198,10 @@ export class ImapService {
     });
   }
 
-  async markAsUnread(accountId: string, folderName: string, uid: number): Promise<void> {
+  async markAsUnread(accountId: string, folderName: string, uid: number | number[]): Promise<void> {
     await this.selectFolder(accountId, folderName);
     const connection = this.getConnection(accountId);
-    
+
     return new Promise((resolve, reject) => {
       connection.delFlags(uid, '\\Seen', (err: Error) => {
         if (err) reject(err);
@@ -210,7 +210,7 @@ export class ImapService {
     });
   }
 
-  async deleteEmail(accountId: string, folderName: string, uid: number): Promise<void> {
+  async deleteEmail(accountId: string, folderName: string, uid: number | number[]): Promise<void> {
     await this.selectFolder(accountId, folderName);
     const connection = this.getConnection(accountId);
 
@@ -228,7 +228,7 @@ export class ImapService {
     });
   }
 
-  async moveEmail(accountId: string, sourceFolder: string, destinationFolder: string, uid: number): Promise<void> {
+  async moveEmail(accountId: string, sourceFolder: string, destinationFolder: string, uid: number | number[]): Promise<void> {
     await this.selectFolder(accountId, sourceFolder);
     const connection = this.getConnection(accountId);
 

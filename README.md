@@ -173,29 +173,32 @@ Once configured, the IMAP MCP server provides the following tools in Claude:
   - count: Number of emails (default: 10)
   ```
 
-- **imap_mark_as_read/unread**: Change email read status
+- **imap_mark_as_read/unread**: Change email read status (supports batch)
   ```
   Parameters:
   - accountId: Account ID
   - folder: Folder name
-  - uid: Email UID
+  - uid: Single email UID (optional)
+  - uids: Array of UIDs for batch operation (optional, takes precedence if both provided)
   ```
 
-- **imap_delete_email**: Delete an email
+- **imap_delete_email**: Delete one or more emails (supports batch)
   ```
   Parameters:
   - accountId: Account ID
   - folder: Folder name
-  - uid: Email UID
+  - uid: Single email UID (optional)
+  - uids: Array of UIDs for batch operation (optional, takes precedence if both provided)
   ```
 
-- **imap_move_email**: Move an email from one folder to another
+- **imap_move_email**: Move one or more emails from one folder to another (supports batch)
   ```
   Parameters:
   - accountId: Account ID
   - sourceFolder: Source folder name
   - destinationFolder: Destination folder name
-  - uid: Email UID
+  - uid: Single email UID (optional)
+  - uids: Array of UIDs for batch operation (optional, takes precedence if both provided)
   ```
 
 - **imap_send_email**: Send a new email
@@ -325,6 +328,58 @@ src/
 
 8. **Manage folders:**
    "List all folders in my email account and show unread counts"
+
+## Batch Operations
+
+The following operations support processing multiple emails at once by using the `uids` parameter (takes precedence if both `uid` and `uids` are provided):
+
+- **Mark multiple emails as read**: Pass an array of UIDs via `uids`
+  ```json
+  {
+    "accountId": "user@example.com",
+    "folder": "INBOX",
+    "uids": [123, 124, 125]
+  }
+  ```
+
+- **Mark multiple emails as unread**: Pass an array of UIDs via `uids`
+  ```json
+  {
+    "accountId": "user@example.com",
+    "folder": "INBOX",
+    "uids": [456, 457, 458]
+  }
+  ```
+
+- **Delete multiple emails**: Pass an array of UIDs via `uids`
+  ```json
+  {
+    "accountId": "user@example.com",
+    "folder": "INBOX",
+    "uids": [789, 790, 791]
+  }
+  ```
+
+- **Move multiple emails**: Pass an array of UIDs via `uids`
+  ```json
+  {
+    "accountId": "user@example.com",
+    "sourceFolder": "INBOX",
+    "destinationFolder": "Archive",
+    "uids": [100, 101, 102]
+  }
+  ```
+
+**Single email operation** (backward compatible):
+```json
+{
+  "accountId": "user@example.com",
+  "folder": "INBOX",
+  "uid": 123
+}
+```
+
+**Note**: Batch operations are atomic - if any email fails, the entire operation fails. All UIDs in a batch must be valid.
 
 ## Troubleshooting
 

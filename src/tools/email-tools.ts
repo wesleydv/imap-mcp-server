@@ -80,21 +80,31 @@ export function emailTools(
 
   // Mark email as read tool
   server.registerTool('imap_mark_as_read', {
-    description: 'Mark an email as read',
+    description: 'Mark one or more emails as read',
     inputSchema: {
       accountId: z.string().describe('Account ID'),
       folder: z.string().default('INBOX').describe('Folder name'),
-      uid: z.number().describe('Email UID'),
+      uid: z.number().optional().describe('Single email UID'),
+      uids: z.array(z.number()).optional().describe('Array of UIDs for batch operation'),
     }
-  }, async ({ accountId, folder, uid }) => {
-    await imapService.markAsRead(accountId, folder, uid);
-    
+  }, async ({ accountId, folder, uid, uids }) => {
+    const uidToProcess = uids || uid;
+    if (uidToProcess === undefined) {
+      throw new Error('Either uid or uids parameter is required');
+    }
+
+    await imapService.markAsRead(accountId, folder, uidToProcess);
+
+    const message = Array.isArray(uidToProcess)
+      ? `${uidToProcess.length} emails marked as read`
+      : `Email ${uidToProcess} marked as read`;
+
     return {
       content: [{
         type: 'text',
         text: JSON.stringify({
           success: true,
-          message: `Email ${uid} marked as read`,
+          message,
         }, null, 2)
       }]
     };
@@ -102,21 +112,31 @@ export function emailTools(
 
   // Mark email as unread tool
   server.registerTool('imap_mark_as_unread', {
-    description: 'Mark an email as unread',
+    description: 'Mark one or more emails as unread',
     inputSchema: {
       accountId: z.string().describe('Account ID'),
       folder: z.string().default('INBOX').describe('Folder name'),
-      uid: z.number().describe('Email UID'),
+      uid: z.number().optional().describe('Single email UID'),
+      uids: z.array(z.number()).optional().describe('Array of UIDs for batch operation'),
     }
-  }, async ({ accountId, folder, uid }) => {
-    await imapService.markAsUnread(accountId, folder, uid);
-    
+  }, async ({ accountId, folder, uid, uids }) => {
+    const uidToProcess = uids || uid;
+    if (uidToProcess === undefined) {
+      throw new Error('Either uid or uids parameter is required');
+    }
+
+    await imapService.markAsUnread(accountId, folder, uidToProcess);
+
+    const message = Array.isArray(uidToProcess)
+      ? `${uidToProcess.length} emails marked as unread`
+      : `Email ${uidToProcess} marked as unread`;
+
     return {
       content: [{
         type: 'text',
         text: JSON.stringify({
           success: true,
-          message: `Email ${uid} marked as unread`,
+          message,
         }, null, 2)
       }]
     };
@@ -124,21 +144,31 @@ export function emailTools(
 
   // Delete email tool
   server.registerTool('imap_delete_email', {
-    description: 'Delete an email (moves to trash or expunges)',
+    description: 'Delete one or more emails (moves to trash or expunges)',
     inputSchema: {
       accountId: z.string().describe('Account ID'),
       folder: z.string().default('INBOX').describe('Folder name'),
-      uid: z.number().describe('Email UID'),
+      uid: z.number().optional().describe('Single email UID'),
+      uids: z.array(z.number()).optional().describe('Array of UIDs for batch operation'),
     }
-  }, async ({ accountId, folder, uid }) => {
-    await imapService.deleteEmail(accountId, folder, uid);
+  }, async ({ accountId, folder, uid, uids }) => {
+    const uidToProcess = uids || uid;
+    if (uidToProcess === undefined) {
+      throw new Error('Either uid or uids parameter is required');
+    }
+
+    await imapService.deleteEmail(accountId, folder, uidToProcess);
+
+    const message = Array.isArray(uidToProcess)
+      ? `${uidToProcess.length} emails deleted`
+      : `Email ${uidToProcess} deleted`;
 
     return {
       content: [{
         type: 'text',
         text: JSON.stringify({
           success: true,
-          message: `Email ${uid} deleted`,
+          message,
         }, null, 2)
       }]
     };
@@ -146,22 +176,32 @@ export function emailTools(
 
   // Move email tool
   server.registerTool('imap_move_email', {
-    description: 'Move an email from one folder to another',
+    description: 'Move one or more emails from one folder to another',
     inputSchema: {
       accountId: z.string().describe('Account ID'),
       sourceFolder: z.string().describe('Source folder name'),
       destinationFolder: z.string().describe('Destination folder name'),
-      uid: z.number().describe('Email UID'),
+      uid: z.number().optional().describe('Single email UID'),
+      uids: z.array(z.number()).optional().describe('Array of UIDs for batch operation'),
     }
-  }, async ({ accountId, sourceFolder, destinationFolder, uid }) => {
-    await imapService.moveEmail(accountId, sourceFolder, destinationFolder, uid);
+  }, async ({ accountId, sourceFolder, destinationFolder, uid, uids }) => {
+    const uidToProcess = uids || uid;
+    if (uidToProcess === undefined) {
+      throw new Error('Either uid or uids parameter is required');
+    }
+
+    await imapService.moveEmail(accountId, sourceFolder, destinationFolder, uidToProcess);
+
+    const message = Array.isArray(uidToProcess)
+      ? `${uidToProcess.length} emails moved from '${sourceFolder}' to '${destinationFolder}'`
+      : `Email ${uidToProcess} moved from '${sourceFolder}' to '${destinationFolder}'`;
 
     return {
       content: [{
         type: 'text',
         text: JSON.stringify({
           success: true,
-          message: `Email ${uid} moved from '${sourceFolder}' to '${destinationFolder}'`,
+          message,
         }, null, 2)
       }]
     };
